@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>SimpleWoLServer</title>
+    </head>
+
+    <body>
+        <h1>SimpleWoLServer</h1>
+        <button onclick="wake()">wake</button>
+    </body>
+
+    <script>
+        function wake() {
+            fetch(
+                "/wake",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        macAddress: "FF:FF:FF:FF:FF:FF",
+                    }),
+                }
+            )
+        }
+    </script>
+
+</html>
