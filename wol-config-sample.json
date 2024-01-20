@@ -1,0 +1,17 @@
+[
+    {
+        "name": "sample1",
+        "macAddress": "FF:FF:FF:FF:FF:FF",
+        "ping": "192.168.0.1",
+        "services": [
+            {
+                "name": "web",
+                "url": "http://100.0.0.1/"
+            }
+        ]
+    },
+    {
+        "name": "sample2",
+        "macAddress": "FE:DC:BA:98:76:45"
+    }
+]

@@ -8,7 +8,7 @@ const port = 3000;
 const server = http.createServer((request, response) => {
     console.log(request);
     if (request.method === "GET" && request.url === "/") {
-        fs.readFile("index.html", "utf-8", (error, data) => {
+        fs.readFile("./dist/index.html", "utf-8", (error, data) => {
             if (error) {
                 response.writeHead(500, { "Content-Type": "text/plain" });
                 response.end("Internal Server Error");

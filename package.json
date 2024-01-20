@@ -4,12 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "npm run build && npm run start",
-    "start": "cd ./dist/ && node ./server.js",
-    "build": "npm run copyAssets && npx tsc",
-    "run": "node ./server.js",
+    "start": "node ./dist/server.js",
+    "build": "npx tsc && node ./src/build.ts",
     "copyAssets": "node -e \"fs.cpSync('./public/', './dist/', { recursive: true })\""
   },
-  "dependencies": {},
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.2",
     "@types/node": "^20.11.5",
