@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "npm run build && npm run start",
-    "start": "node ./dist/server.js",
-    "build": "npx tsc && node ./src/build.ts",
+    "start": "node --env-file=.env ./dist/build.js && node ./dist/server.js",
+    "build": "npx tsc",
     "copyAssets": "node -e \"fs.cpSync('./public/', './dist/', { recursive: true })\""
   },
   "devDependencies": {

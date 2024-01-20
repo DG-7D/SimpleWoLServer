@@ -1,7 +1,9 @@
 import fs from "fs";
 
+const configFile = process.env["WOL_CONFIG"];
+
 let html = fs.readFileSync("./src/index.html", "utf-8");
-const settings: { name: string, macAddress: string }[] = JSON.parse(fs.readFileSync("./wol-config-sample.json", "utf-8"));
+const settings: { name: string, macAddress: string }[] = JSON.parse(fs.readFileSync(configFile!, "utf-8"));
 let generated = "";
 
 for (const device of settings) {
