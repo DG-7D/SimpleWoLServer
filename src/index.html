@@ -22,25 +22,29 @@
         </table>
     </body>
 
-    <script>
-        const pingElements = document.getElementsByClassName("ping");
+    <script defer>
+        const pingInterval = 1000;
+
+        for (const element of document.getElementsByClassName("ping")) {
+            const hostname = element.dataset.ping;
+            if (hostname) {
+                setInterval(
+                    async () => element.textContent = await ping(hostname) ? "💡" : "💤",
+                    pingInterval
+                )
+            }
+        }
 
         for (const button of document.getElementsByClassName("wake")) {
             button.addEventListener("click", (event) => {
-                wake(event.target.dataset.macAddress);
+                event.target.disabled = true;
+                wake(event.target.dataset.macAddress)
+                    .then(setTimeout(() => event.target.disabled = false, 1000));
             })
         }
-        setInterval(async () => {
-            for (const element of pingElements) {
-                const hostname = element.dataset.ping;
-                if (hostname) {
-                    element.textContent = await ping(hostname) ? "💡" : "💤";
-                }
-            }
-        },
-            1000);
-        function wake(macAddress) {
-            fetch(
+
+        async function wake(macAddress) {
+            return fetch(
                 "/wake",
                 {
                     method: "POST",
@@ -53,13 +57,12 @@
                 }
             )
         }
-
         async function ping(hostname) {
             const urlSearchParams = new URLSearchParams({ hostname: hostname });
             const url = `/ping?${urlSearchParams.toString()}`;
             return await fetch(url)
                 .then(response => response.json())
-                .then(json => { return json.responsed });
+                .then(json => json.responsed);
         }
     </script>
 

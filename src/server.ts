@@ -2,6 +2,7 @@ import http from "node:http";
 import fs from "fs";
 import dgram from "dgram";
 import path from "path";
+import { execSync } from "child_process";
 
 const hostname = "0.0.0.0";
 const port = 3000;
@@ -120,9 +121,12 @@ function wake(macAddress: string) {
 
 function ping(hostname: string): boolean {
     console.log(`ping ${hostname}`);
-    if (hostname == "192.168.0.1") {
-        return true
-    } else {
-        return false
+    const pingCommand = process.platform == "win32" ? "ping -n 1" : "ping -c 1";
+    try {
+        execSync(`${pingCommand} ${hostname}`, { timeout: 100 });
+        return true;
+    }
+    catch (error) {
+        return false;
     }
 }
