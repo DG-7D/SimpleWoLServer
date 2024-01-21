@@ -1,20 +1,44 @@
 import http from "node:http";
 import fs from "fs";
 import dgram from "dgram";
+import path from "path";
 
 const hostname = "0.0.0.0";
 const port = 3000;
 
+const basePath = "./dist"
+const mimeTypes: { [key: string]: string } = {
+    ".html": "text/html",
+    ".js": "text/javascript",
+    ".css": "text/css",
+    ".json": "application/json",
+};
+
+
 const server = http.createServer((request, response) => {
-    console.log(request);
-    if (request.method === "GET" && request.url === "/") {
-        fs.readFile("./dist/index.html", "utf-8", (error, data) => {
+    console.log(`${request.method} ${request.url}`)
+    if (request.method === "GET") {
+        let filePath = basePath + request.url;
+        if (filePath.endsWith("/")) {
+            filePath += "index.html";
+        }
+
+        const extention = path.extname(filePath).toLowerCase();
+        const contentType = mimeTypes[extention];
+
+        console.log(`=> ${filePath}`)
+        fs.readFile(filePath, "utf-8", (error, content) => {
             if (error) {
-                response.writeHead(500, { "Content-Type": "text/plain" });
-                response.end("Internal Server Error");
+                if (error.code == "ENOENT") {
+                    response.writeHead(404);
+                    response.end();
+                } else {
+                    response.writeHead(500);
+                    response.end();
+                }
             } else {
-                response.writeHead(200, { "Content-Type": "text/html" });
-                response.end(data, "utf-8");
+                response.writeHead(200, { "Content-Type": contentType });
+                response.end(content);
             }
         })
     } else if (request.method === "POST" && request.url === "/wake") {
@@ -42,6 +66,7 @@ const server = http.createServer((request, response) => {
         response.writeHead(404);
         response.end();
     }
+    console.log(`=> ${response.statusCode}`);
 });
 
 server.listen(port, hostname, () => {
