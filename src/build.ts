@@ -21,12 +21,12 @@ for (const device of settings) {
                     <li><a href="${service.url}">${service.name}</a></li>
             `
         }
-        generated += `
+    }
+    generated += `
                 </ul>
             </td>   
         </tr>
-        `
-    }
+    `
 }
 
 html = html.replace("<!-- generate -->", generated);
