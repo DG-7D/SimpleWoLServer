@@ -23,13 +23,20 @@
     </body>
 
     <script defer>
-        const pingInterval = 1000;
+        const pingInterval = 5000;
 
         for (const element of document.getElementsByClassName("ping")) {
             const hostname = element.dataset.ping;
             if (hostname) {
                 setInterval(
-                    async () => element.textContent = await ping(hostname) ? "💡" : "💤",
+                    async () => {
+                        try {
+                            ping(hostname)
+                                .then(responsed => element.textContent = responsed ? "💡" : "💤");
+                        } catch {
+                            element.textContent = "❗";
+                        }
+                    },
                     pingInterval
                 )
             }
