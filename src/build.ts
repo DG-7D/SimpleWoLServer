@@ -8,8 +8,8 @@ let generated = "";
 
 for (const device of settings) {
     generated += `
-        <tr ${device.ping ? "data-ping=" + device.ping : ""}>
-            <td class="ping">❓</td>
+        <tr>
+            <td class="ping" ${device.ping ? "data-ping=" + device.ping : ""}>❓</td>
             <td>${device.name}</td>
             <td><button class="wake" data-mac-address="${device.macAddress}">Wake</button></td>
             <td>

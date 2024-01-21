@@ -2,6 +2,7 @@ import http from "node:http";
 import fs from "fs";
 import dgram from "dgram";
 import path from "path";
+import { execSync } from "child_process";
 
 const hostname = "0.0.0.0";
 const port = 3000;
@@ -12,35 +13,54 @@ const mimeTypes: { [key: string]: string } = {
     ".js": "text/javascript",
     ".css": "text/css",
     ".json": "application/json",
+    ".txt": "text/plain",
 };
 
 
 const server = http.createServer((request, response) => {
     console.log(`${request.method} ${request.url}`)
+    const requestURL = new URL(request.url ?? "", `http://${request.headers.host}`);
+
     if (request.method === "GET") {
-        let filePath = basePath + request.url;
-        if (filePath.endsWith("/")) {
-            filePath += "index.html";
+
+        if (requestURL.pathname == "/ping") {
+            const hostname = requestURL.searchParams.get("hostname");
+            if (hostname) {
+                response.writeHead(200, { "content-type": mimeTypes[".json"] })
+                response.end(JSON.stringify({
+                    responsed: ping(hostname),
+                }));
+            } else {
+                response.writeHead(400, { "content-type": mimeTypes[".txt"] });
+                response.end("bad request: missig `hostname`");
+            }
+
+        } else {
+            let filePath = basePath + request.url;
+            if (filePath.endsWith("/")) {
+                filePath += "index.html";
+            }
+
+            const extention = path.extname(filePath).toLowerCase();
+            const contentType = mimeTypes[extention];
+
+            console.log(`=> ${filePath}`)
+            fs.readFile(filePath, "utf-8", (error, content) => {
+                if (error) {
+                    if (error.code == "ENOENT") {
+                        response.writeHead(404);
+                        response.end();
+                    } else {
+                        response.writeHead(500);
+                        response.end();
+                    }
+                } else {
+                    response.writeHead(200, { "Content-Type": contentType });
+                    response.end(content);
+                }
+            })
         }
 
-        const extention = path.extname(filePath).toLowerCase();
-        const contentType = mimeTypes[extention];
-
-        console.log(`=> ${filePath}`)
-        fs.readFile(filePath, "utf-8", (error, content) => {
-            if (error) {
-                if (error.code == "ENOENT") {
-                    response.writeHead(404);
-                    response.end();
-                } else {
-                    response.writeHead(500);
-                    response.end();
-                }
-            } else {
-                response.writeHead(200, { "Content-Type": contentType });
-                response.end(content);
-            }
-        })
     } else if (request.method === "POST" && request.url === "/wake") {
         let requestBody = "";
         request.on("data", chunk => {
@@ -51,14 +71,14 @@ const server = http.createServer((request, response) => {
                 const requestJson = JSON.parse(requestBody);
                 if (requestJson.macAddress) {
                     wake(requestJson.macAddress);
-                    response.writeHead(200, { "content-type": "text/plain" });
+                    response.writeHead(200, { "content-type": mimeTypes[".txt"] });
                     response.end("success");
                 } else {
-                    response.writeHead(400, { "content-type": "text/plain" });
+                    response.writeHead(400, { "content-type": mimeTypes[".txt"] });
                     response.end("bad request: missing `macAddress`");
                 }
             } catch {
-                response.writeHead(400, { "content-type": "text/plain" });
+                response.writeHead(400, { "content-type": mimeTypes[".txt"] });
                 response.end("bad request: invalid JSON");
             }
         })
@@ -97,4 +117,16 @@ function wake(macAddress: string) {
         socket.close();
     });
     socket.connect(9, "255.255.255.255");
+}
+
+function ping(hostname: string): boolean {
+    console.log(`ping ${hostname}`);
+    const pingCommand = process.platform == "win32" ? "ping -n 1" : "ping -c 1";
+    try {
+        execSync(`${pingCommand} ${hostname}`, { timeout: 100 });
+        return true;
+    }
+    catch (error) {
+        return false;
+    }
 }
