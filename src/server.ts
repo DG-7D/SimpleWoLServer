@@ -1,10 +1,9 @@
-import http from "node:http";
+import http from "http";
 import fs from "fs";
 import dgram from "dgram";
 import path from "path";
 import { execSync } from "child_process";
 
-const hostname = "0.0.0.0";
 const port = 3000;
 const pingTimeout = 1000;
 
@@ -90,8 +89,8 @@ const server = http.createServer((request, response) => {
     console.log(`=> ${response.statusCode}`);
 });
 
-server.listen(port, hostname, () => {
-    console.log(`Server runnning at http://${hostname}:${port}/`);
+server.listen(port, () => {
+    console.log(`Server runnning at http://localhost:${port}/`);
 })
 
 function wake(macAddress: string) {
