@@ -34,7 +34,7 @@
                             ping(hostname)
                                 .then(responsed => element.textContent = responsed ? "💡" : "💤");
                         } catch {
-                            element.textContent = "❓";
+                            element.textContent = "❗";
                         }
                     },
                     pingInterval
