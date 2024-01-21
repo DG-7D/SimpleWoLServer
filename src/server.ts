@@ -6,6 +6,7 @@ import { execSync } from "child_process";
 
 const hostname = "0.0.0.0";
 const port = 3000;
+const pingTimeout = 1000;
 
 const basePath = "./dist"
 const mimeTypes: { [key: string]: string } = {
@@ -123,7 +124,7 @@ function ping(hostname: string): boolean {
     console.log(`ping ${hostname}`);
     const pingCommand = process.platform == "win32" ? "ping -n 1" : "ping -c 1";
     try {
-        execSync(`${pingCommand} ${hostname}`, { timeout: 100 });
+        execSync(`${pingCommand} ${hostname}`, { timeout: pingTimeout });
         return true;
     }
     catch (error) {
