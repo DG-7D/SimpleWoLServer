@@ -23,11 +23,22 @@
     </body>
 
     <script>
+        const pingElements = document.getElementsByClassName("ping");
+
         for (const button of document.getElementsByClassName("wake")) {
             button.addEventListener("click", (event) => {
                 wake(event.target.dataset.macAddress);
             })
         }
+        setInterval(async () => {
+            for (const element of pingElements) {
+                const hostname = element.dataset.ping;
+                if (hostname) {
+                    element.textContent = await ping(hostname) ? "💡" : "💤";
+                }
+            }
+        },
+            1000);
         function wake(macAddress) {
             fetch(
                 "/wake",
@@ -42,7 +53,14 @@
                 }
             )
         }
-        // 💡💤
+
+        async function ping(hostname) {
+            const urlSearchParams = new URLSearchParams({ hostname: hostname });
+            const url = `/ping?${urlSearchParams.toString()}`;
+            return await fetch(url)
+                .then(response => response.json())
+                .then(json => { return json.responsed });
+        }
     </script>
 
 </html>
