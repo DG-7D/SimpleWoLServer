@@ -16,52 +16,62 @@ const mimeTypes: { [key: string]: string } = {
     ".txt": "text/plain",
 };
 
+http.createServer((request, response) => {
 
-const server = http.createServer((request, response) => {
     console.log(`${request.method} ${request.url}`)
+
+    if (request.url?.startsWith("/api")) {
+        processApi(request, response);
+        return;
+    }
+
+    if (request.method == "GET") {
+        let filePath = basePath + request.url;
+        filePath.endsWith("/") && (filePath += "index.html");
+        console.log(`=> ${filePath}`);
+
+        const extention = path.extname(filePath).toLowerCase();
+        const contentType = mimeTypes[extention];
+
+        fs.readFile(filePath, "utf-8", (error, content) => {
+            if (!error) {
+                response.writeHead(200, { "Content-Type": contentType });
+                response.end(content);
+                return;
+            }
+            if (error.code != "ENOENT") {
+                response.writeHead(500);
+                response.end();
+                return;
+            }
+        });
+        return;
+    }
+
+    response.writeHead(404);
+    response.end();
+    return;
+})
+    .listen(port, () => {
+        console.log(`Server runnning at http://localhost:${port}/`);
+    });
+
+function processApi(request: http.IncomingMessage, response: http.ServerResponse) {
     const requestURL = new URL(request.url ?? "", `http://${request.headers.host}`);
-
-    if (request.method === "GET") {
-
-        if (requestURL.pathname == "/ping") {
-            const hostname = requestURL.searchParams.get("hostname");
-            if (hostname) {
-                response.writeHead(200, { "content-type": mimeTypes[".json"] })
-                response.end(JSON.stringify({
-                    responsed: ping(hostname),
-                }));
-            } else {
-                response.writeHead(400, { "content-type": mimeTypes[".txt"] });
-                response.end("bad request: missig `hostname`");
-            }
-
-        } else {
-            let filePath = basePath + request.url;
-            if (filePath.endsWith("/")) {
-                filePath += "index.html";
-            }
-
-            const extention = path.extname(filePath).toLowerCase();
-            const contentType = mimeTypes[extention];
-
-            console.log(`=> ${filePath}`)
-            fs.readFile(filePath, "utf-8", (error, content) => {
-                if (error) {
-                    if (error.code == "ENOENT") {
-                        response.writeHead(404);
-                        response.end();
-                    } else {
-                        response.writeHead(500);
-                        response.end();
-                    }
-                } else {
-                    response.writeHead(200, { "Content-Type": contentType });
-                    response.end(content);
-                }
-            })
+    if (request.method == "GET" && requestURL.pathname == "/api/ping") {
+        const hostname = requestURL.searchParams.get("hostname");
+        if (hostname) {
+            response.writeHead(200, { "content-type": mimeTypes[".json"] })
+            response.end(JSON.stringify({
+                responsed: ping(hostname),
+            }));
+            return;
         }
-
-    } else if (request.method === "POST" && request.url === "/wake") {
+        response.writeHead(400, { "content-type": mimeTypes[".txt"] });
+        response.end("bad request: missig `hostname`");
+        return;
+    }
+    if (request.method == "POST" && requestURL.pathname == "/api/wake") {
         let requestBody = "";
         request.on("data", chunk => {
             requestBody += chunk.toString();
@@ -71,27 +81,25 @@ const server = http.createServer((request, response) => {
                 const requestJson = JSON.parse(requestBody);
                 if (requestJson.macAddress) {
                     wake(requestJson.macAddress);
-                    response.writeHead(200, { "content-type": mimeTypes[".txt"] });
-                    response.end("success");
-                } else {
-                    response.writeHead(400, { "content-type": mimeTypes[".txt"] });
-                    response.end("bad request: missing `macAddress`");
+                    response.writeHead(200);
+                    response.end();
+                    return;
                 }
+                response.writeHead(400, { "content-type": mimeTypes[".txt"] });
+                response.end("bad request: missing `macAddress`");
+                return;
             } catch {
                 response.writeHead(400, { "content-type": mimeTypes[".txt"] });
                 response.end("bad request: invalid JSON");
+                return;
             }
-        })
-    } else {
-        response.writeHead(404);
-        response.end();
+        });
+        return;
     }
-    console.log(`=> ${response.statusCode}`);
-});
-
-server.listen(port, () => {
-    console.log(`Server runnning at http://localhost:${port}/`);
-})
+    response.writeHead(404);
+    response.end();
+    return;
+}
 
 function wake(macAddress: string) {
     macAddress = macAddress.replaceAll(":", "").replaceAll("-", "");
