@@ -2,8 +2,9 @@
 <html lang="en">
 
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
         <title>SimpleWoLServer</title>
-        <meta charset="utf-8">
         <link rel="stylesheet" href="/style.css">
     </head>
 
@@ -29,7 +30,7 @@
             const hostname = element.dataset.ping;
             if (hostname) {
                 setInterval(
-                    async () => {
+                    () => {
                         try {
                             ping(hostname)
                                 .then(responsed => element.textContent = responsed ? "💡" : "💤");
