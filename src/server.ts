@@ -7,7 +7,7 @@ import { execSync } from "child_process";
 const port = 3000;
 const pingTimeout = 1000;
 
-const basePath = "./dist"
+const basePath = "./dist/static"
 const mimeTypes: { [key: string]: string } = {
     ".html": "text/html",
     ".js": "text/javascript",

@@ -2,7 +2,7 @@ import fs from "fs";
 
 const configFile = process.env["WOL_CONFIG"];
 
-let html = fs.readFileSync("./src/index.html", "utf-8");
+let html = fs.readFileSync("./src/index.template.html", "utf-8");
 const settings: { name: string, macAddress?: string, ping?: string, services?: { name: string, url: string }[] }[] = JSON.parse(fs.readFileSync(configFile!, "utf-8"));
 let generated = "";
 
@@ -31,4 +31,4 @@ for (const device of settings) {
 
 html = html.replace("<!-- generate -->", generated);
 
-fs.writeFileSync("./dist/index.html", html);
+fs.writeFileSync("./dist/static/index.html", html);
