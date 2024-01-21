@@ -1,17 +1,25 @@
 [
     {
-        "name": "sample1",
-        "macAddress": "FF:FF:FF:FF:FF:FF",
-        "ping": "192.168.0.1",
+        "name": "exapmle",
+        "macAddress": "fe-dc-ba-98-76-54",
+        "ping": "example.local",
         "services": [
             {
-                "name": "web",
-                "url": "http://100.0.0.1/"
+                "name": "Web (direct)",
+                "url": "http://example.local:4321/"
+            },
+            {
+                "name": "Web (Tailscale)",
+                "url": "http://example.example.ts.net:4321/"
             }
         ]
     },
     {
-        "name": "sample2",
-        "macAddress": "FE:DC:BA:98:76:45"
+        "name": "onlyping",
+        "ping": "onlyping.local"
+    },
+    {
+        "name": "onlywake",
+        "macAddress": "01:23:45:67:89:ab"
     }
 ]
