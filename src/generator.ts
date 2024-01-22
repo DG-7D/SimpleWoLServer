@@ -29,12 +29,12 @@ function indexHtml() {
                     <li><a href="${service.url}">${service.name}</a></li>
             `
             }
-            generated += `
+        }
+        generated += `
                 </ul>
             </td>   
         </tr>
-        `
-        }
+    `
     }
 
     return template.replace("<!-- generate -->", generated);

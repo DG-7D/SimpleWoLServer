@@ -2,8 +2,9 @@
 <html lang="en">
 
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
         <title>SimpleWoLServer</title>
-        <meta charset="utf-8">
         <link rel="stylesheet" href="/style.css">
     </head>
 
@@ -29,13 +30,10 @@
             const hostname = element.dataset.ping;
             if (hostname) {
                 setInterval(
-                    async () => {
-                        try {
-                            ping(hostname)
-                                .then(responsed => element.textContent = responsed ? "💡" : "💤");
-                        } catch {
-                            element.textContent = "❗";
-                        }
+                    () => {
+                        ping(hostname)
+                            .then(responsed => element.textContent = responsed ? "💡" : "💤")
+                            .catch(() => element.textContent = "❗");
                     },
                     pingInterval
                 )
@@ -45,12 +43,16 @@
         for (const button of document.getElementsByClassName("wake")) {
             button.addEventListener("click", (event) => {
                 event.target.disabled = true;
-                wake(event.target.dataset.macAddress)
-                    .then(setTimeout(() => event.target.disabled = false, 1000));
+                Promise.all([
+                    wake(event.target.dataset.macAddress),
+                    new Promise(resolve => setTimeout(() => resolve(), 1000))
+                ])
+                    .finally(() => event.target.disabled = false)
+
             })
         }
 
-        async function wake(macAddress) {
+        function wake(macAddress) {
             return fetch(
                 "/api/wake",
                 {
@@ -64,10 +66,10 @@
                 }
             )
         }
-        async function ping(hostname) {
+        function ping(hostname) {
             const urlSearchParams = new URLSearchParams({ hostname: hostname });
             const url = `/api/ping?${urlSearchParams.toString()}`;
-            return await fetch(url)
+            return fetch(url)
                 .then(response => response.json())
                 .then(json => json.responsed);
         }
