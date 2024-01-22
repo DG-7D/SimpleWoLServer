@@ -3,14 +3,14 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
-    "dev": "npm run build && npm run start",
-    "start": "node --env-file=.env ./dist/build.js && node ./dist/server.js",
-    "build": "npx tsc && npm run copyAssets",
-    "copyAssets": "node -e \"fs.cpSync('./public/', './dist/', { recursive: true })\""
+    "dev": "npx tsx --watch --env-file=.env ./src/server.ts",
+    "start": "node --env-file=.env ./dist/server.js",
+    "build": "npx tsc"
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.2",
     "@types/node": "^20.11.5",
+    "tsx": "^4.7.0",
     "typescript": "^5.3.3"
   }
 }
