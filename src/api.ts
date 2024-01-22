@@ -1,6 +1,7 @@
 import dgram from "dgram";
-import { execSync } from "child_process";
+const exec = util.promisify((await import("child_process")).exec);
 import http from "http";
+import util from "util";
 
 import mimeTypes from "./mimeTypes";
 
@@ -10,7 +11,7 @@ export default {
     response: response,
 };
 
-function response(request: http.IncomingMessage, response: http.ServerResponse) {
+async function response(request: http.IncomingMessage, response: http.ServerResponse) {
     const requestURL = new URL(request.url ?? "", `http://${request.headers.host}`);
 
     if (request.method == "GET" && requestURL.pathname == "/api/ping") {
@@ -18,7 +19,7 @@ function response(request: http.IncomingMessage, response: http.ServerResponse) 
         if (hostname) {
             response.writeHead(200, { "content-type": mimeTypes[".json"] })
             response.end(JSON.stringify({
-                responsed: ping(hostname),
+                responsed: await ping(hostname),
             }));
             return;
         }
@@ -52,7 +53,7 @@ function response(request: http.IncomingMessage, response: http.ServerResponse) 
         });
         return;
     }
-    
+
     response.writeHead(404);
     response.end();
     return;
@@ -84,14 +85,10 @@ function wake(macAddress: string) {
     socket.connect(9, "255.255.255.255");
 }
 
-function ping(hostname: string): boolean {
+function ping(hostname: string) {
     console.log(`ping ${hostname}`);
     const pingCommand = process.platform == "win32" ? "ping -n 1" : "ping -c 1";
-    try {
-        execSync(`${pingCommand} ${hostname}`, { timeout: pingTimeout });
-        return true;
-    }
-    catch (error) {
-        return false;
-    }
+    return exec(`${pingCommand} ${hostname}`, { timeout: pingTimeout })
+        .then(() => true)
+        .catch(() => false);
 }

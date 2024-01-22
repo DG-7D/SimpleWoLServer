@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import http from "http";
 import path from "path";
 
@@ -44,19 +44,21 @@ function webResponse(request: http.IncomingMessage, response: http.ServerRespons
     }
 
     filePath = staticPath + filePath;
-    fs.readFile(filePath, "utf-8", (error, content) => {
-        if (!error) {
+    fs.readFile(filePath, "utf-8")
+        .then((content) => {
             response.writeHead(200, { "Content-Type": contentType });
             response.end(content);
             return;
-        }
-        if (error.code != "ENOENT") {
-            response.writeHead(500);
+        })
+        .catch((reason) => {
+            if (reason.code != "ENOENT") {
+                response.writeHead(500);
+                response.end();
+                return;
+            }
+            response.writeHead(404);
             response.end();
             return;
-        }
-        response.writeHead(404);
-        response.end();
-        return;
-    });
+        });
+
 }

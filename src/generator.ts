@@ -1,19 +1,24 @@
-import fs from "fs";
+import fs from "fs/promises";
 
 const generated: { [path: string]: string } = {
-    "/index.html": indexHtml(),
+    "/index.html": await indexHtml(),
 }
 
 export default {
     generated: generated,
 }
 
-function indexHtml() {
-    const configFile = process.env["WOL_CONFIG"];
-    let template = fs.readFileSync("./public/index.template.html", "utf-8");
-    const settings: { name: string, macAddress?: string, ping?: string, services?: { name: string, url: string }[] }[] = JSON.parse(fs.readFileSync(configFile!, "utf-8"));
-    let generated = "";
+async function indexHtml() {
+    const configFile = process.env["WOL_CONFIG"]!;
 
+    const files = await Promise.all([
+        fs.readFile("./public/index.template.html", "utf-8"),
+        fs.readFile(configFile, "utf-8"),
+    ]);
+    const template = files[0];
+    const settings: { name: string, macAddress?: string, ping?: string, services?: { name: string, url: string }[] }[] = JSON.parse(files[1]);
+
+    let generated = "";
     for (const device of settings) {
         generated += `
         <tr>
