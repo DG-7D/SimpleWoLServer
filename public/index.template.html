@@ -54,7 +54,7 @@
 
         function wake(macAddress) {
             return fetch(
-                "/wake",
+                "/api/wake",
                 {
                     method: "POST",
                     headers: {
@@ -68,7 +68,7 @@
         }
         function ping(hostname) {
             const urlSearchParams = new URLSearchParams({ hostname: hostname });
-            const url = `/ping?${urlSearchParams.toString()}`;
+            const url = `/api/ping?${urlSearchParams.toString()}`;
             return fetch(url)
                 .then(response => response.json())
                 .then(json => json.responsed);

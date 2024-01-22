@@ -1,13 +1,21 @@
 import fs from "fs";
 
-const configFile = process.env["WOL_CONFIG"];
+const generated: { [path: string]: string } = {
+    "/index.html": indexHtml(),
+}
 
-let html = fs.readFileSync("./src/index.html", "utf-8");
-const settings: { name: string, macAddress?: string, ping?: string, services?: { name: string, url: string }[] }[] = JSON.parse(fs.readFileSync(configFile!, "utf-8"));
-let generated = "";
+export default {
+    generated: generated,
+}
 
-for (const device of settings) {
-    generated += `
+function indexHtml() {
+    const configFile = process.env["WOL_CONFIG"];
+    let template = fs.readFileSync("./public/index.template.html", "utf-8");
+    const settings: { name: string, macAddress?: string, ping?: string, services?: { name: string, url: string }[] }[] = JSON.parse(fs.readFileSync(configFile!, "utf-8"));
+    let generated = "";
+
+    for (const device of settings) {
+        generated += `
         <tr>
             <td class="ping" ${device.ping ? "data-ping=" + device.ping : ""}>❓</td>
             <td>${device.name}</td>
@@ -15,20 +23,19 @@ for (const device of settings) {
             <td>
                 <ul>
     `
-    if (device.services) {
-        for (const service of device.services) {
-            generated += `
+        if (device.services) {
+            for (const service of device.services) {
+                generated += `
                     <li><a href="${service.url}">${service.name}</a></li>
             `
+            }
         }
-    }
-    generated += `
+        generated += `
                 </ul>
             </td>   
         </tr>
     `
+    }
+
+    return template.replace("<!-- generate -->", generated);
 }
-
-html = html.replace("<!-- generate -->", generated);
-
-fs.writeFileSync("./dist/index.html", html);
