@@ -3,7 +3,7 @@ const exec = util.promisify((await import("child_process")).exec);
 import http from "http";
 import util from "util";
 
-import mimeTypes from "./mimeTypes";
+import mimeTypes from "./mimeTypes.js";
 
 const pingTimeout = 1000;
 

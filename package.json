@@ -8,6 +8,7 @@
     "build": "npx tsc"
   },
   "devDependencies": {
+    "@tsconfig/node-lts": "^20.1.1",
     "@tsconfig/strictest": "^2.0.2",
     "@types/node": "^20.11.5",
     "tsx": "^4.7.0",

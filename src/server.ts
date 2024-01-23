@@ -2,9 +2,9 @@ import fs from "fs/promises";
 import http from "http";
 import path from "path";
 
-import api from "./api"
-import generator from "./generator";
-import mimeTypes from "./mimeTypes";
+import api from "./api.js"
+import generator from "./generator.js";
+import mimeTypes from "./mimeTypes.js";
 
 const port = 3000;
 const staticPath = "./public/static"
