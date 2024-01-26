@@ -29,14 +29,13 @@
         for (const element of document.getElementsByClassName("ping")) {
             const hostname = element.dataset.ping;
             if (hostname) {
-                setInterval(
-                    () => {
-                        ping(hostname)
-                            .then(responsed => element.textContent = responsed ? "💡" : "💤")
-                            .catch(() => element.textContent = "❗");
-                    },
-                    pingInterval
-                )
+                function pingLoop() {
+                    ping(hostname)
+                        .then(responsed => element.textContent = responsed ? "💡" : "💤")
+                        .catch(() => element.textContent = "❗")
+                        .finally(() => setTimeout(pingLoop, pingInterval));
+                };
+                pingLoop();
             }
         }
 

@@ -4,17 +4,16 @@
     line-height: 150%;
 }
 
+
 html {
     padding: 1rem;
 }
+
 
 h1 {
     font-size: 2rem;
 }
 
-a {
-    text-decoration: underline;
-}
 
 th,
 td {
@@ -26,6 +25,7 @@ tr {
     margin-bottom: 0.2rem;
 }
 
+
 button {
     line-height: 100%;
     border: 0.1rem solid black;
@@ -34,4 +34,13 @@ button {
 
 button:disabled {
     opacity: 50%;
+}
+
+
+li {
+    display: inline;
+}
+
+a {
+    text-decoration: underline;
 }
