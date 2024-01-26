@@ -29,7 +29,7 @@
         for (const element of document.getElementsByClassName("ping")) {
             const hostname = element.dataset.ping;
             if (hostname) {
-                function pingLoop() {
+                const pingLoop = () => {
                     ping(hostname)
                         .then(responsed => element.textContent = responsed ? "💡" : "💤")
                         .catch(() => element.textContent = "❗")
