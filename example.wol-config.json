@@ -5,12 +5,12 @@
         "ping": "example.local",
         "services": [
             {
-                "name": "Web (direct)",
-                "url": "http://example.local:4321/"
+                "name": "Web",
+                "url": "http://example.local:3000/"
             },
             {
                 "name": "Web (Tailscale)",
-                "url": "http://example.example.ts.net:4321/"
+                "url": "http://example.example.ts.net/"
             }
         ]
     },
