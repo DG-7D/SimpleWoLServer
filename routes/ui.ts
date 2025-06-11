@@ -1,14 +1,8 @@
-import fs from "fs/promises";
-
 export const indexHtml = await (async () => {
-    const configFile = process.env["WOL_CONFIG"]!;
+    const configFile = Bun.file(process.env["WOL_CONFIG"] ?? "");
+    const settings: { name: string, macAddress?: string, ping?: string, services?: { name: string, url: string }[] }[] = await configFile.json();
 
-    const files = await Promise.all([
-        fs.readFile("./templates/index.html", "utf-8"),
-        fs.readFile(configFile, "utf-8"),
-    ]);
-    const template = files[0];
-    const settings: { name: string, macAddress?: string, ping?: string, services?: { name: string, url: string }[] }[] = JSON.parse(files[1]);
+    const template = await Bun.file("./templates/index.html").text();
 
     let generated = "";
     for (const device of settings) {
