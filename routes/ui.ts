@@ -1,13 +1,6 @@
 import fs from "fs/promises";
-import express from "express";
-export const router = express.Router();
 
-
-router.get("/", (req, res, next) => {
-    res.send(indexHtml);
-});
-
-const indexHtml = await (async () => {
+export const indexHtml = await (async () => {
     const configFile = process.env["WOL_CONFIG"]!;
 
     const files = await Promise.all([

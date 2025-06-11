@@ -1,41 +1,17 @@
 const pingTimeout = 1000;
 
 import dgram from "dgram";
-import express from "express";
 import util from "util";
 const exec = util.promisify((await import("child_process")).exec);
 
-export const router = express.Router();
-
-router.get("/ping", async (req, res, next) => {
-    const hostname = req.query["hostname"];
-    if (typeof (hostname) == "string") {
-        res.json({
-            responsed: await ping(hostname),
-        });
-    } else {
-        res.status(400).send("bad request: missig `hostname`");
-    }
-})
-
-router.post("/wake", (req, res, next) => {
-    const macAddress = req.body.macAddress;
-    if (typeof (macAddress) == "string") {
-        wake(macAddress);
-        res.status(200).end();
-    } else {
-        res.status(400).send("bad request: missing `macAddress`");
-    }
-})
-
-function ping(hostname: string) {
+export function ping(hostname: string) {
     const pingCommand = process.platform == "win32" ? "ping -n 1" : "ping -c 1";
     return exec(`${pingCommand} ${hostname}`, { timeout: pingTimeout })
         .then(() => true)
         .catch(() => false);
 }
 
-function wake(macAddress: string) {
+export function wake(macAddress: string) {
     macAddress = macAddress.replaceAll(":", "").replaceAll("-", "");
     let macAddressBytes: number[] = [];
     for (let index = 0; index < macAddress.length; index += 2) {

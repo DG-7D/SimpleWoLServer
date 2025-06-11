@@ -8,14 +8,8 @@
     "watch": "bun run --bun --env-file=.env --watch index.ts"
   },
   "devDependencies": {
-    "@types/express": "^4.17.23",
-    "@types/morgan": "^1.9.10",
     "@types/node": "^22.15.31",
     "typescript": "^5.8.3",
     "@types/bun": "latest"
-  },
-  "dependencies": {
-    "express": "^4.21.2",
-    "morgan": "^1.10.0"
   }
 }
