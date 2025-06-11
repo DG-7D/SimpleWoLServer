@@ -3,7 +3,7 @@ import { indexHtml } from "./routes/ui.ts";
 
 const server = Bun.serve({
     routes: {
-        "/":  new Response(indexHtml, { headers: { "Content-Type": "text/html" }, status: 200 }),
+        "/": new Response(indexHtml, { headers: { "Content-Type": "text/html" }, status: 200 }),
         "/api/ping": {
             GET: async req => {
                 const hostname = new URL(req.url).searchParams.get("hostname");
@@ -21,7 +21,7 @@ const server = Bun.serve({
                 if (typeof macAddress !== "string") {
                     return new Response("Bad Request: missing `macAddress`", { status: 400 });
                 }
-                wake(macAddress);
+                await wake(macAddress);
                 return new Response(null, { status: 200 });
             }
         },

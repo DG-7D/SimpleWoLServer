@@ -8,7 +8,6 @@
     "watch": "bun run --bun --env-file=.env --watch index.ts"
   },
   "devDependencies": {
-    "@types/node": "^22.15.31",
     "typescript": "^5.8.3",
     "@types/bun": "latest"
   }
