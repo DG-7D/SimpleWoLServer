@@ -1,41 +1,13 @@
 const pingTimeout = 1000;
 
-import dgram from "dgram";
-import express from "express";
-import util from "util";
-const exec = util.promisify((await import("child_process")).exec);
-
-export const router = express.Router();
-
-router.get("/ping", async (req, res, next) => {
-    const hostname = req.query["hostname"];
-    if (typeof (hostname) == "string") {
-        res.json({
-            responsed: await ping(hostname),
-        });
-    } else {
-        res.status(400).send("bad request: missig `hostname`");
-    }
-})
-
-router.post("/wake", (req, res, next) => {
-    const macAddress = req.body.macAddress;
-    if (typeof (macAddress) == "string") {
-        wake(macAddress);
-        res.status(200).end();
-    } else {
-        res.status(400).send("bad request: missing `macAddress`");
-    }
-})
-
-function ping(hostname: string) {
-    const pingCommand = process.platform == "win32" ? "ping -n 1" : "ping -c 1";
-    return exec(`${pingCommand} ${hostname}`, { timeout: pingTimeout })
-        .then(() => true)
-        .catch(() => false);
+export function ping(hostname: string) {
+    const pingCommand = {
+        raw: process.platform == "win32" ? `ping -n 1 -w ${pingTimeout}` : `ping -c 1 -W ${pingTimeout}`,
+    };
+    return Bun.$`${pingCommand} ${hostname}`.quiet().then(_ => true).catch(_ => false);
 }
 
-function wake(macAddress: string) {
+export async function wake(macAddress: string) {
     macAddress = macAddress.replaceAll(":", "").replaceAll("-", "");
     let macAddressBytes: number[] = [];
     for (let index = 0; index < macAddress.length; index += 2) {
@@ -48,14 +20,8 @@ function wake(macAddress: string) {
         magicPacket.writeUInt8(macAddressBytes[index % 6]!, index);
     }
 
-    const socket = dgram.createSocket("udp4");
-    socket.on("error", (error) => {
-        console.error(error);
-        socket.close();
-    });
-    socket.on("connect", () => {
-        socket.send(magicPacket, 0, magicPacket.length);
-        socket.close();
-    });
-    socket.connect(9, "255.255.255.255");
-}
+    const socket = await Bun.udpSocket({});
+    (socket as any).setBroadcast(true); // 型定義がないのでエラー回避
+    socket.send(magicPacket, 9, "255.255.255.255");
+    socket.close();
+ }
