@@ -1,14 +1,12 @@
 const pingTimeout = 1000;
 
 import dgram from "dgram";
-import util from "util";
-const exec = util.promisify((await import("child_process")).exec);
 
 export function ping(hostname: string) {
-    const pingCommand = process.platform == "win32" ? "ping -n 1" : "ping -c 1";
-    return exec(`${pingCommand} ${hostname}`, { timeout: pingTimeout })
-        .then(() => true)
-        .catch(() => false);
+    const pingCommand = {
+        raw: process.platform == "win32" ? `ping -n 1 -w ${pingTimeout}` : `ping -c 1 -W ${pingTimeout}`,
+    };
+    return Bun.$`${pingCommand} ${hostname}`.quiet().then(_ => true).catch(_ => false);
 }
 
 export function wake(macAddress: string) {
